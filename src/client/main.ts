@@ -1,5 +1,5 @@
+import { GameEngine } from 'Shared/GameEngine';
 import { ClientEngine } from './ClientEngine';
-import { GameEngine } from '../shared/GameEngine';
 
 const options = {
     traceLevel: 1,
@@ -17,6 +17,5 @@ const gameEngine = new GameEngine(options);
 const clientEngine = new ClientEngine(gameEngine, options);
 
 document.addEventListener('DOMContentLoaded', function (e) {
-    console.log('hello');
     clientEngine.start();
 });

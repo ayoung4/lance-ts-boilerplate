@@ -4,7 +4,6 @@ export class ServerEngine extends SE {
 
     constructor(io, gameEngine, inputOptions) {
         super(io, gameEngine, inputOptions);
-        // this.serializer.registerClass(require('../common/PlayerAvatar'));
     }
 
     start() {

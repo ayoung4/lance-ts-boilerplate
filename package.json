@@ -5,7 +5,7 @@
   "description": "",
   "scripts": {
     "start": "npm-run-all --parallel build serve",
-    "serve": "nodemon ./app.js",
+    "serve": "nodemon ./main.js",
     "build": "webpack --watch"
   },
   "author": "",
@@ -23,6 +23,7 @@
   "dependencies": {
     "express": "^4.16.2",
     "lance-gg": "^1.0.10",
+    "p5": "^0.5.16",
     "path": "^0.12.7",
     "socket.io": "^2.0.4"
   }

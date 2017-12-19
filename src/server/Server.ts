@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as socketIO from 'socket.io';
 import * as path from 'path';
 
-import { GameEngine } from '../shared/GameEngine';
+import { GameEngine } from 'Shared/GameEngine';
 import { ServerEngine } from './ServerEngine';
 
 export class Server {

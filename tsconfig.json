@@ -6,11 +6,7 @@
         "sourceMap": true,
         "noImplicitAny": false,
         "baseUrl": "./src",
-        "outDir": "./dist",
         "paths": {
-            "Bin/*": [
-                "bin/*"
-            ],
             "Client/*": [
                 "client/*"
             ],

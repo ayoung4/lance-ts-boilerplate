@@ -1,4 +1,4 @@
 node_modules
-app.js
+main.js
 public/bundle.js
 *.trace

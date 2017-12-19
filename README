@@ -1,3 +1,16 @@
+Helpful Links:
+node (platform): https://nodejs.org/en/
+express (server): https://expressjs.com/
+typescript (transpiler): https://www.typescriptlang.org/
+webpack (build tool): https://webpack.js.org/
+p5 (renderer): https://p5js.org/
+lance-gg (game server): https://github.com/lance-gg/lance
+
 Start:
 > npm install
 > npm start
+
+Todo:
+- Complete typings for lance gg
+- Add typings for p5
+- Add/set up tslint

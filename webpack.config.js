@@ -4,7 +4,7 @@ var awt = require('awesome-typescript-loader');
 
 module.exports = [
     {
-        entry: './src/server/app.ts',
+        entry: './src/server/main.ts',
         target: 'node',
         node: {
             __dirname: false,
@@ -12,7 +12,10 @@ module.exports = [
         },
         externals: [nodeExternals()],
         resolve: {
-            extensions: ['.ts']
+            extensions: ['.ts'],
+            plugins: [
+                new awt.TsConfigPathsPlugin()
+            ],
         },
         module: {
             loaders: [
@@ -22,8 +25,9 @@ module.exports = [
                 }
             ]
         },
+
         output: {
-            filename: 'app.js',
+            filename: 'main.js',
             path: path.resolve(__dirname)
         }
     },
@@ -37,6 +41,9 @@ module.exports = [
             extensions: ['.ts', '.js'],
             modules: [
                 'node_modules'
+            ],
+            plugins: [
+                new awt.TsConfigPathsPlugin()
             ],
         },
         module: {
