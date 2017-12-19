@@ -1,0 +1,29 @@
+{
+  "name": "game",
+  "version": "1.0.0",
+  "main": "server/app.js",
+  "description": "",
+  "scripts": {
+    "start": "npm-run-all --parallel build serve",
+    "serve": "nodemon ./app.js",
+    "build": "webpack --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.0.39",
+    "@types/node": "^8.5.1",
+    "@types/socket.io": "^1.4.31",
+    "awesome-typescript-loader": "^3.4.1",
+    "npm-run-all": "^4.1.2",
+    "typescript": "^2.6.2",
+    "webpack": "^3.10.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "lance-gg": "^1.0.10",
+    "path": "^0.12.7",
+    "socket.io": "^2.0.4"
+  }
+}

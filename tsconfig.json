@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es6",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "noImplicitAny": false,
+        "baseUrl": "./src",
+        "outDir": "./dist",
+        "paths": {
+            "Bin/*": [
+                "bin/*"
+            ],
+            "Client/*": [
+                "client/*"
+            ],
+            "Server/*": [
+                "server/*"
+            ],
+            "Shared/*": [
+                "shared/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules/**/*",
+        "public/**/*",
+        "dist/**/*"
+    ]
+}
