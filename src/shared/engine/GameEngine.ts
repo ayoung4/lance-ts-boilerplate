@@ -1,15 +1,6 @@
-import { GameEngine as GE } from 'lance-gg';
-
-interface IPlayer {
-    isMovingUp: boolean;
-    isMovingDown: boolean;
-    isRotatingLeft: boolean;
-    isRotatingRight: boolean;
-}
-
-enum Directions {
-    
-}
+import { serialize, GameEngine as GE } from 'lance-gg';
+import { Player } from 'Shared/engine/Player';
+import * as _ from 'lodash';
 
 export class GameEngine extends GE {
 
@@ -23,31 +14,42 @@ export class GameEngine extends GE {
 
         this.worldSettings = {
             width: 400,
-            height: 400
+            height: 400,
         };
+
+    }
+
+    addPlayer(playerId: number) {
+
+        const position = new serialize.TwoVector(_.random(400), _.random(400));
+        
+        const player = new Player(++this.world.idCount, position);
+        player.playerId = playerId;
+        
+        this.addObjectToWorld(player);
+        console.log(`player added: ${player.toString()}`);
+        
+        return player;
     }
 
     processInput(inputData, playerId) {
 
         super.processInput(inputData, playerId);
 
-        // get the player's primary object
-        const player = this.world.getPlayerObject<IPlayer>(playerId);
+        const player = this.world.getPlayerObject<Player>(playerId);
 
         if (player) {
-            console.log(`player ${playerId} pressed ${inputData.input}`);
+
             if (inputData.input === 'up') {
-                player.isMovingUp = true;
+                player.position.y -= 1;
             } else if (inputData.input === 'down') {
-                player.isMovingDown = true;
+                player.position.y += 1;
             } else if (inputData.input === 'right') {
-                player.isRotatingRight = true;
+                player.position.x += 1;
             } else if (inputData.input === 'left') {
-                player.isRotatingLeft = true;
-            } else if (inputData.input === 'space') {
-                // this.fire(player, inputData.messageIndex);
-                // this.emit('fire');
+                player.position.x -= 1;
             }
+            
         }
     }
 }

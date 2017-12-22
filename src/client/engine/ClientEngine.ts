@@ -2,19 +2,25 @@ import { ClientEngine as CE } from 'lance-gg';
 import { Renderer } from 'Client/renderer/Renderer';
 import { Controller } from 'Client/engine/Controller';
 
+import { Player } from 'Shared/engine/Player';
+
 export class ClientEngine extends CE {
 
-    controller: Controller;
+    private controller: Controller;
 
     constructor(gameEngine, options) {
 
         super(gameEngine, options, Renderer);
+        
+        this.gameEngine.on('client__preStep', this.preStep.bind(this));
 
+        this.serializer.registerClass(Player);
+        
         this.controller = new Controller();
-    
+
     }
 
-    step() {
+    preStep() {
 
         if (this.controller.keyStates.up.isDown) {
             this.sendInput('up', { movement: true });
