@@ -1,16 +1,5 @@
 declare module 'lance-gg' {
 
-    export class GameWorld {
-        objects: object;
-        stepCount: number;
-        playerCount: number;
-        idCount: number;
-        constructor();
-        forEachObject(callback: (id: string, obj: object) => void): void;
-        getPlayerObject(playerId: string): any;
-        getOwnedObject(playerId: string): any[];
-    }
-
     interface IGameEngineOptions {
         traceLevel?: number;
         delayInputCount?: number;
@@ -45,7 +34,7 @@ declare module 'lance-gg' {
 
     export class GameEngine {
         world: GameWorld;
-        worldSettings: object;
+        worldSettings: { width: number, height: number };
         constructor(options: IGameEngineOptions);
         findLocalShadow(serverObj): object | null;
         initWorld(): void;
@@ -53,7 +42,7 @@ declare module 'lance-gg' {
         start(): void;
         step(isReenact: boolean, t?: number, dt?: number, physicsOnly?: boolean): void;
         addObjectToWorld(object: object): object;
-        processInput(inputMsg: IInputMessage, playerId: string, isServer?: boolean): void;
+        processInput<T extends IInputMessage>(inputMsg: T, playerId: string, isServer?: boolean): void;
         removeObjectFromWorld(id: string): void;
         registerClasses(serializer): void;
     }
@@ -68,7 +57,7 @@ declare module 'lance-gg' {
 
     export class ServerEngine {
         gameEngine: GameEngine;
-        serializer: any;
+        serializer: serialize.Serializer;
         constructor(io: SocketIO.Server, gameEngine: GameEngine, options: IServerEngineOptions);
         start(): void;
         step(): void;
@@ -84,22 +73,6 @@ declare module 'lance-gg' {
         gameStatus(): string;
     }
 
-    export module render {
-
-        export class Renderer {
-            gameEngine: GameEngine;
-            clientEngine: ClientEngine;
-            constructor(gameEngine: GameEngine, clientEngine: ClientEngine);
-            init(): Promise<void>;
-            reportSlowFrameRate(): void;
-            draw(t?: number, dt?: number);
-            runClientStep(t: number, dt: number): void;
-            addObject(obj: object): void;
-            removeObject(obj: object): void;
-        }
-
-    }
-
     interface IClientEngineOptions {
         autoConnect: boolean;
         delayInputCount: number;
@@ -113,13 +86,13 @@ declare module 'lance-gg' {
         scheduler: string;
     }
 
-    type Serializer = any;
-
     export class ClientEngine {
         options: IClientEngineOptions;
-        serializer: Serializer;
+        serializer: serialize.Serializer;
         gameEngine: GameEngine;
         playerId: string;
+        networkTransmitter: NetworkTransmitter;
+        networkMonitor: NetworkMonitor
         constructor(gameEngine: GameEngine, inputOptions: IClientEngineOptions, Renderer: typeof render.Renderer);
         isOwnedByPlayer(object: object): boolean;
         configureSynchronization(): void
@@ -134,7 +107,197 @@ declare module 'lance-gg' {
         handleOutboundInput(): void;
     }
 
-    export class NetworkMonitor {
+    type syncStrategyType = 'extrapolate' | 'interpolate' | 'frameSync';
+    type syncStrategy = any;
+
+    interface ISynchronizerOptions {
+        sync: syncStrategyType;
+    }
+
+    export class Synchronizer {
+        clientEngine: ClientEngine;
+        options: ISynchronizerOptions;
+        syncStrategy: syncStrategy;
+        constructor(clientEngine: ClientEngine, options: ISynchronizerOptions);
+    }
+
+    export class GameWorld {
+        objects: object;
+        stepCount: number;
+        playerCount: number;
+        idCount: number;
+        constructor();
+        forEachObject(callback: (id: string, obj: object) => void): void;
+        getPlayerObject<T>(playerId: string): T;
+        getOwnedObject<T>(playerId: string): T[];
+    }
+
+    export module serialize {
+
+        interface INetSchemProp {
+            type: any;
+            itemType?: any;
+        }
+
+        interface IINetScheme {
+            id: INetSchemProp;
+            playerId: INetSchemProp;
+            position: INetSchemProp;
+            velocity: INetSchemProp;
+            angle: INetSchemProp;
+            [key: string]: INetSchemProp;
+        }
+
+        export class Serializer {
+            constructor();
+            registerClass(classRef: (...args: any[]) => object, classId?: string): void;
+            deserialize<T>(dataBuffer: any, byteOffset?: number): T;
+            writeDataView(dataView: DataView, value: any, bufferOffset: number, netSchemProp: INetSchemProp): void;
+            readDataView(dataView: DataView, bufferOffset: number, netSchemProp: INetSchemProp): { data: any, bufferSize: number };
+            private getTypeByteSize(type: string): number;
+            private typeCanAssign(type: string): boolean;
+        }
+
+        interface ISerializableOptions {
+            dataBuffer?: object;
+            bufferOffset?: number;
+            dry?: boolean;
+        }
+
+        export class Serializable {
+            classId: string;
+            netScheme: object;
+            serialize(serializer: object, options: ISerializableOptions);
+            prunedStringsClone(serializer: object, prevObject: any): Serializable;
+            syncTo(other: any): void;
+        }
+
+        export class PhysicalObject { }
+
+        export class THREEPhysicalObject { }
+
+        export class GameObject extends Serializable {
+            netScheme: IINetScheme;
+            id: string;
+            constructor(id: string);
+            init(options: object): void;
+            toString(): string;
+            bendingToString(): string;
+            saveState(other: object): void;
+            bendToCurrentState(bending, worldSettings, isLocal, bendingIncrements): void;
+            bendToCurrent(original, bending, worldSettings, isLocal, bendingIncrements): void;
+            syncTo(other: GameObject): void;
+        }
+
+        export class DynamicObject<T extends IINetScheme> extends GameObject {
+            netScheme: T;
+            playerId: number;
+            position: TwoVector;
+            velocity: TwoVector;
+            friction: TwoVector;
+            affectedByGravity: boolean;
+            angle: number;
+            isRotatingLeft: boolean;
+            isRotatingRight: boolean;
+            isAccelerating: boolean;
+            rotationSpeed: number;
+            acceleration: number;
+            bending: TwoVector;
+            bendingAngle: number;
+            deceleration: number;
+            constructor(id: string, position?: TwoVector, velocity?: TwoVector);
+            x: number;
+            y: number;
+            bendingToString(): string;
+            syncTo(other: DynamicObject<any>): void;
+            bendToCurrent(original: DynamicObject<any>, bending: number, worldSettings: { width: number, height: number }, isLocal: boolean, bendingIncrements: number): void;
+            applyIncrementalBending(): void;
+            interpolate(nextObj: DynamicObject<T>, playPercentage: number, worldSettings: { width: number, height: number }): void;
+        }
+
+        export class TwoVector extends Serializable {
+            x: number;
+            y: number;
+            constructor(x: number, y: number);
+            set(x: number, y: number): TwoVector;
+            add(other: TwoVector): TwoVector;
+            subtract(other: TwoVector): TwoVector;
+            multiply(other: TwoVector): TwoVector;
+            multiplyScalar(s: number): TwoVector;
+            length(): number;
+            normalize(): TwoVector;
+            copy(source: TwoVector): TwoVector;
+            clone(): TwoVector;
+            lerp(target: TwoVector, p: number): void;
+        }
+
+        export class ThreeVector extends Serializable {
+            x: number;
+            y: number;
+            z: number;
+            constructor(x: number, y: number, z: number);
+            set(x: number, y: number, z: number): ThreeVector;
+            add(other: ThreeVector): ThreeVector;
+            subtract(other: ThreeVector): ThreeVector;
+            multiply(other: ThreeVector): ThreeVector;
+            multiplyScalar(s: number): ThreeVector;
+            length(): number;
+            normalize(): ThreeVector;
+            copy(source: ThreeVector): ThreeVector;
+            clone(): ThreeVector;
+            lerp(target: ThreeVector, p: number): void;
+        }
+
+    }
+
+
+    export module render {
+
+        export class Renderer {
+            gameEngine: GameEngine;
+            clientEngine: ClientEngine;
+            constructor(gameEngine: GameEngine, clientEngine: ClientEngine);
+            init(): Promise<void>;
+            reportSlowFrameRate(): void;
+            draw(t?: number, dt?: number);
+            runClientStep(t: number, dt: number): void;
+            addObject(obj: object): void;
+            removeObject(obj: object): void;
+        }
+
+        export class ThreeRenderer { }
+
+        export class AFrameRenderer { }
+
+    }
+
+    export module controls {
+
+        interface IKeyBindingOptions {
+            repeat: boolean;
+        }
+
+        interface IKeyBinding {
+            actionName: string;
+            options: IKeyBindingOptions;
+        }
+
+        interface IKeyState {
+            count: number;
+            isDown: boolean
+        }
+
+        export class Keyboard {
+            private keyState: { [key: string]: IKeyState };
+            private boundKeys: { [key: string]: IKeyBinding }
+            constructor(clientEngine: ClientEngine);
+            setupListeners(): void;
+            bindKey(keys: string | string[], actionName: string, options?: IKeyBindingOptions);
+        }
+
+    }
+
+    class NetworkMonitor {
         queryIdCounter: number;
         RTTQueries: object;
         movingRTTAverage: number;
@@ -147,14 +310,13 @@ declare module 'lance-gg' {
         onReceivedRTTQuery(queryId: string): void
         registerPlayerOnServer(socket): void;
         respondToRTTQuery(socket, queryId: string): void;
-
     }
 
-    export class NetworkTransmitter {
-        serializer: Serializer
+    class NetworkTransmitter {
+        serializer: serialize.Serializer
         registeredEvents: any[];
         payload: any[]
-        constructor(serializer: Serializer);
+        constructor(serializer: serialize.Serializer);
         registerNetworkedEventFactory(eventName, options): void;
         addNetworkedEvent(eventName, payload): any;
         serializePayload(): any

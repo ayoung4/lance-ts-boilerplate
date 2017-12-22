@@ -2,8 +2,8 @@ import * as express from 'express';
 import * as socketIO from 'socket.io';
 import * as path from 'path';
 
-import { GameEngine } from 'Shared/GameEngine';
-import { ServerEngine } from './ServerEngine';
+import { GameEngine } from 'Shared/engine/GameEngine';
+import { ServerEngine } from 'Server/engine/ServerEngine';
 
 export class Server {
 

@@ -1,5 +1,5 @@
-import { GameEngine } from 'Shared/GameEngine';
-import { ClientEngine } from './ClientEngine';
+import { GameEngine } from 'Shared/engine/GameEngine';
+import { ClientEngine } from 'Client/engine/ClientEngine';
 
 const options = {
     traceLevel: 1,

@@ -1,5 +1,16 @@
 import { GameEngine as GE } from 'lance-gg';
 
+interface IPlayer {
+    isMovingUp: boolean;
+    isMovingDown: boolean;
+    isRotatingLeft: boolean;
+    isRotatingRight: boolean;
+}
+
+enum Directions {
+    
+}
+
 export class GameEngine extends GE {
 
     constructor(options) {
@@ -21,7 +32,8 @@ export class GameEngine extends GE {
         super.processInput(inputData, playerId);
 
         // get the player's primary object
-        let player = this.world.getPlayerObject(playerId);
+        const player = this.world.getPlayerObject<IPlayer>(playerId);
+
         if (player) {
             console.log(`player ${playerId} pressed ${inputData.input}`);
             if (inputData.input === 'up') {
