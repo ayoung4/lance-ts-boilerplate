@@ -150,7 +150,7 @@ declare module 'lance-gg' {
 
         export class Serializer {
             constructor();
-            registerClass(classRef: (...args: any[]) => object, classId?: string): void;
+            registerClass(classRef: Function, classId?: string): void;
             deserialize<T>(dataBuffer: any, byteOffset?: number): T;
             writeDataView(dataView: DataView, value: any, bufferOffset: number, netSchemProp: INetSchemProp): void;
             readDataView(dataView: DataView, bufferOffset: number, netSchemProp: INetSchemProp): { data: any, bufferSize: number };
