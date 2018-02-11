@@ -13,16 +13,12 @@
             "Server/*": [
                 "server/*"
             ],
-            "Shared/*": [
-                "shared/*"
+            "Common/*": [
+                "common/*"
             ]
         }
     },
     "include": [
         "src/**/*"
-    ],
-    "exclude": [
-        "node_modules/**/*",
-        "public/**/*"
     ]
 }

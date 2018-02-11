@@ -9,7 +9,7 @@ var typescriptLoader = {
 
 module.exports = [
     {
-        entry: './src/server/main.ts',
+        entry: './src/server/serverMain.ts',
         target: 'node',
         node: {
             __dirname: false,
@@ -29,7 +29,7 @@ module.exports = [
         }
     },
     {
-        entry: './src/client/main.ts',
+        entry: './src/client/clientMain.ts',
         target: 'web',
         node: { fs: 'empty' },
         resolve: {

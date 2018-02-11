@@ -16,6 +16,7 @@
     "@types/node": "^8.5.1",
     "@types/socket.io": "^1.4.31",
     "awesome-typescript-loader": "^3.4.1",
+    "nodemon": "^1.14.12",
     "npm-run-all": "^4.1.2",
     "typescript": "^2.6.2",
     "webpack": "^3.10.0",
